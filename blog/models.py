@@ -1,13 +1,13 @@
 from py2neo import Graph, Node, Relationship
-from passlib.hash import bcrypt
+from passlib.hash import bcrypt  # encrypt pwd
 from datetime import datetime
 import os
-import uuid
+import uuid  # generate unique IDs
 
 
-url = os.environ.get('GRAPHENEDB_URL', 'http://localhost:7474')
-username = os.environ.get('NEO4J_USERNAME')
-password = os.environ.get('NEO4J_PASSWORD')
+url = os.environ.get('GRAPHENEDB_URL', 'http://localhost:7474')  # failover to http://localhost:7474
+username = os.environ.get('NEO4J_USERNAME')  # neo4j1
+password = os.environ.get('NEO4J_PASSWORD')  # neo4j1
 
 graph = Graph(url + '/db/data/', username = username, password = password)
 
@@ -18,7 +18,7 @@ class User:
         self.username = username
     
     def find(self):
-        user = graph.find_one('User', 'username', self.username)
+        user = graph.find_one('User', 'username', self.username)  # returns None obj if not foun
         return user
     
     def register(self, password):
@@ -52,7 +52,7 @@ class User:
         tags = [x.strip() for x in tags.lower().split(',')]
         for name in set(tags):
             tag = Node('Tag', name = name)
-            graph.merge(tag)
+            graph.merge(tag)  # finds or creates the Tag node
             
             rel = Relationship(tag, 'TAGGED', post)
             graph.create(rel)
@@ -107,10 +107,10 @@ class User:
 
 def get_todays_recent_posts():
     query = '''
-    MATCH (user:User)-[:PUBLISHED]->(post:Post)<-[:TAGGED]-(tag:Tag)
-    WHERE post.date = {today}
-    RETURN user.username AS username, post, COLLECT(tag.name) AS tags
-    ORDER BY post.timestamp DESC LIMIT 5
+        MATCH (user:User)-[:PUBLISHED]->(post:Post)<-[:TAGGED]-(tag:Tag)
+        WHERE post.date = {today}
+        RETURN user.username AS username, post, COLLECT(tag.name) AS tags
+        ORDER BY post.timestamp DESC LIMIT 5
     '''
     
     return graph.run(query, today = date())

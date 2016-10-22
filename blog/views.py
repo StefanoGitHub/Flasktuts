@@ -41,7 +41,7 @@ def login():
         else:
             session['username'] = username
             flash('Logged in.')
-            return redirect(url_for('index'))
+            return redirect(url_for('index'))  # url related to index() method
     
     return render_template('login.html')
 
@@ -73,7 +73,7 @@ def add_post():
 
 @app.route('/like_post/<post_id>')
 def like_post(post_id):
-    username = session.get('username')
+    username = session.get('username')  # none if not exists
     
     if not username:
         flash('You must be logged in to like a post.')
